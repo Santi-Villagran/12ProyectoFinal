@@ -76,10 +76,11 @@ public class PaqueteData {
         String sql="UPDATE paquete SET estado=false WHERE idPaquete=?";
         try{
             PreparedStatement ps=con.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
+            ps.setInt(1, id);
             ps.executeUpdate();
             ResultSet rs=ps.getGeneratedKeys();
             if(rs.next()){
-                JOptionPane.showMessageDialog(null, "El paquete de viaje se modifico correctamente");
+                JOptionPane.showMessageDialog(null, "El paquete se dio de baja");
             }else{
                 JOptionPane.showMessageDialog(null,"Ha ocurrido un error inesperado");
             }
@@ -87,6 +88,53 @@ public class PaqueteData {
         }catch(SQLException ex){
             JOptionPane.showMessageDialog(null,"Ocurrio un error al acceder a la base de datos");
         }
+    }
+    
+    public Paquete buscarPaquete(int id){
+        String sql ="SELECT* FROM paquete WHERE idPaquete=?";
+        Paquete paquete=new Paquete();
+        try {
+            PreparedStatement ps= con.prepareStatement(sql);
+            ResultSet rs=ps.executeQuery();
+            if(rs.next()){
+                paquete.setIdPaquete(rs.getInt("idPaquete"));
+                /*paquete.setOrigen(ciuData.buscarCiudad(rs.getInt("idCiudad_origen")));
+                paquete.setDestino(ciuData.buscarCiudad(rs.getInt("idCiudad_destino")));
+                paquete.setAlojamiento(aloData.buscarAlojamiento(rs.getInt("idAlojamiento")));
+                paquete.setPasaje(pasData.buscarPasaje(rs.getInt("idPasaje")));*/
+            }else{
+                JOptionPane.showMessageDialog(null,"No se encontro el paquete");
+            }
+            ps.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al acceder a la base de datos");
+        }
+        return paquete;
+    }
+    
+    public List<Paquete> listarPaquetesPorOrigen(int idCiudad){
+        
+        String sql ="SELECT* FROM paquete WHERE idCiudad_origen=?";
+        List<Paquete> paquetes = new ArrayList<>();
+        Paquete paquete=null;
+        try {
+            PreparedStatement ps= con.prepareStatement(sql);
+            ps.setInt(1, idCiudad);
+            ResultSet rs=ps.executeQuery();
+            while(rs.next()){
+                paquete=new Paquete();
+                paquete.setIdPaquete(rs.getInt("idPaquete"));
+                /*paquete.setOrigen(ciuData.buscarCiudad(rs.getInt("idCiudad_origen")));
+                paquete.setDestino(ciuData.buscarCiudad(rs.getInt("idCiudad_destino")));
+                paquete.setAlojamiento(aloData.buscarAlojamiento(rs.getInt("idAlojamiento")));
+                paquete.setPasaje(pasData.buscarPasaje(rs.getInt("idPasaje")));*/
+                paquetes.add(paquete);
+            }
+            ps.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al acceder a la base de datos");
+        }
+        return paquetes;
     }
     
     public List<Paquete> listarPaquetes(){
